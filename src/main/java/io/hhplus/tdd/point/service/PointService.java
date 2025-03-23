@@ -18,22 +18,14 @@ public class PointService {
     private final UserPointTable userPointTable;
     private final PointHistoryTable pointHistoryTable;
 
-    public UserPoint chargePoint(PointCommand command) {
+    public UserPoint processPoint(PointCommand command) {
         UserPoint userPoint = readPoint(command.getUserId());
+        long updateAmount = userPoint.addAmount(command.getAmount());
 
-        UserPoint chargePoint = updateUserPoint(userPoint, command);
+        UserPoint processPoint = updateUserPoint(command.getUserId(), updateAmount);
         addPointHistory(command);
 
-        return chargePoint;
-    }
-
-    public UserPoint usePoint(PointCommand command) {
-        UserPoint userPoint = readPoint(command.getUserId());
-
-        UserPoint usePoint = updateUserPoint(userPoint, command);
-        addPointHistory(command);
-
-        return usePoint;
+        return processPoint;
     }
 
     public UserPoint readPoint(long userId) {
@@ -46,9 +38,8 @@ public class PointService {
             .toList();
     }
 
-    private UserPoint updateUserPoint(UserPoint userPoint, PointCommand command) {
-        long updatePoint = userPoint.addPoint(command.getAmount());
-        return userPointTable.insertOrUpdate(command.getUserId(), updatePoint);
+    private UserPoint updateUserPoint(long userId, long updateAmount) {
+        return userPointTable.insertOrUpdate(userId, updateAmount);
     }
 
     private void addPointHistory(PointCommand command) {

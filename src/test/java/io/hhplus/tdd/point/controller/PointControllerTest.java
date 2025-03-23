@@ -102,7 +102,7 @@ class PointControllerTest {
         // given
         UserPoint response = new UserPoint(1L, 100_000L, System.currentTimeMillis());
 
-        given(pointService.chargePoint(any()))
+        given(pointService.processPoint(any()))
             .willReturn(response);
 
         // when & then
@@ -142,7 +142,7 @@ class PointControllerTest {
         // given
         UserPoint response = new UserPoint(1L, 1_000L, System.currentTimeMillis());
 
-        given(pointService.usePoint(any()))
+        given(pointService.processPoint(any()))
             .willReturn(response);
 
         // when & then

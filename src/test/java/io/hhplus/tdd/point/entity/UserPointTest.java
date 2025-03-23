@@ -38,7 +38,7 @@ class UserPointTest {
 
     @DisplayName("포인트 잔고에 충전/사용할 포인트를 더한다.")
     @Test
-    void addPoint() {
+    void addAmount() {
         // given
         long userId = 1L;
         long point = 100_000L;
@@ -47,7 +47,7 @@ class UserPointTest {
         UserPoint userPoint = new UserPoint(userId, point, updateMillis);
 
         // when
-        long addPoint = userPoint.addPoint(100_000L);
+        long addPoint = userPoint.addAmount(100_000L);
 
         // then
         assertThat(addPoint).isEqualTo(200_000L);

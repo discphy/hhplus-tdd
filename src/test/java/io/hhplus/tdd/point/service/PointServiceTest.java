@@ -6,6 +6,7 @@ import io.hhplus.tdd.point.entity.PointHistory;
 import io.hhplus.tdd.point.entity.UserPoint;
 import io.hhplus.tdd.point.model.TransactionType;
 import io.hhplus.tdd.point.service.command.ChargePointCommand;
+import io.hhplus.tdd.point.service.command.PointCommand;
 import io.hhplus.tdd.point.service.command.UsePointCommand;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,10 +37,10 @@ class PointServiceTest {
         long amount = 1L;
         userPointTable.insertOrUpdate(userId, 10_000_000L);
 
-        ChargePointCommand command = ChargePointCommand.of(userId, amount);
+        PointCommand command = ChargePointCommand.of(userId, amount);
 
         // when & then
-        assertThatThrownBy(() -> pointService.chargePoint(command))
+        assertThatThrownBy(() -> pointService.processPoint(command))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("최대 잔고는 10,000,000 포인트 입니다.");
     }
@@ -52,10 +53,10 @@ class PointServiceTest {
         long amount = 500_000L;
         userPointTable.insertOrUpdate(userId, 10_000L);
 
-        ChargePointCommand command = ChargePointCommand.of(userId, amount);
+        PointCommand command = ChargePointCommand.of(userId, amount);
 
         // when
-        UserPoint userPoint = pointService.chargePoint(command);
+        UserPoint userPoint = pointService.processPoint(command);
 
         // then
         assertThat(userPoint.id()).isEqualTo(userId);
@@ -69,8 +70,8 @@ class PointServiceTest {
         long userId = 1L;
         long amount = 500_000L;
 
-        ChargePointCommand command = ChargePointCommand.of(userId, amount);
-        pointService.chargePoint(command);
+        PointCommand command = ChargePointCommand.of(userId, amount);
+        pointService.processPoint(command);
 
         // when
         List<PointHistory> pointHistories = pointHistoryTable.selectAllByUserId(userId);
@@ -90,10 +91,10 @@ class PointServiceTest {
         long amount = 10_001;
         userPointTable.insertOrUpdate(userId, 10_000L);
 
-        UsePointCommand command = UsePointCommand.of(userId, amount);
+        PointCommand command = UsePointCommand.of(userId, amount);
 
         // when & then
-        assertThatThrownBy(() -> pointService.usePoint(command))
+        assertThatThrownBy(() -> pointService.processPoint(command))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("잔고가 부족합니다.");
     }
@@ -106,10 +107,10 @@ class PointServiceTest {
         long amount = 1_500L;
         userPointTable.insertOrUpdate(userId, 10_000L);
 
-        UsePointCommand command = UsePointCommand.of(userId, amount);
+        PointCommand command = UsePointCommand.of(userId, amount);
 
         // when
-        UserPoint userPoint = pointService.usePoint(command);
+        UserPoint userPoint = pointService.processPoint(command);
 
         // then
         assertThat(userPoint.id()).isEqualTo(userId);
@@ -124,8 +125,8 @@ class PointServiceTest {
         long amount = 1_500L;
         userPointTable.insertOrUpdate(userId, 10_000L);
 
-        UsePointCommand command = UsePointCommand.of(userId, amount);
-        pointService.usePoint(command);
+        PointCommand command = UsePointCommand.of(userId, amount);
+        pointService.processPoint(command);
 
         // when
         List<PointHistory> pointHistories = pointHistoryTable.selectAllByUserId(userId);
