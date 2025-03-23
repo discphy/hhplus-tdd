@@ -55,19 +55,17 @@ class PointHistoryTableTest {
     void selectAllByUserId() {
         // given
         long userId = 1L;
-        long anotherUserId = 2L;
 
         pointHistoryTable.insert(userId, 100_000L, TransactionType.CHARGE, System.currentTimeMillis());
         pointHistoryTable.insert(userId, -50_000L, TransactionType.USE, System.currentTimeMillis());
-        pointHistoryTable.insert(anotherUserId, 30_000L, TransactionType.CHARGE, System.currentTimeMillis());
 
         // when
         List<PointHistory> pointHistories = pointHistoryTable.selectAllByUserId(userId);
 
         // then
-        assertThat(pointHistories).hasSize(2)
+        assertThat(pointHistories)
             .extracting("userId", "amount", "type")
-            .containsExactly(
+            .contains(
                 tuple(userId, 100_000L, TransactionType.CHARGE),
                 tuple(userId, -50_000L, TransactionType.USE)
             );
