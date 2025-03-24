@@ -1,9 +1,10 @@
 package io.hhplus.tdd.point.service;
 
-import io.hhplus.tdd.database.PointHistoryTable;
-import io.hhplus.tdd.database.UserPointTable;
 import io.hhplus.tdd.point.entity.PointHistory;
 import io.hhplus.tdd.point.entity.UserPoint;
+import io.hhplus.tdd.point.entity.persistence.PointHistoryReader;
+import io.hhplus.tdd.point.entity.persistence.PointHistoryWriter;
+import io.hhplus.tdd.point.entity.persistence.UserPointWriter;
 import io.hhplus.tdd.point.model.TransactionType;
 import io.hhplus.tdd.point.service.command.ChargePointCommand;
 import io.hhplus.tdd.point.service.command.PointCommand;
@@ -24,10 +25,13 @@ class PointServiceTest {
     private PointService pointService;
 
     @Autowired
-    private UserPointTable userPointTable;
+    private UserPointWriter userPointWriter;
 
     @Autowired
-    private PointHistoryTable pointHistoryTable;
+    private PointHistoryReader pointHistoryReader;
+
+    @Autowired
+    private PointHistoryWriter pointHistoryWriter;
 
     @DisplayName("포인트 충전 최대 금액은 1,000만원 까지다.")
     @Test
@@ -35,7 +39,7 @@ class PointServiceTest {
         // given
         long userId = 1L;
         long amount = 1L;
-        userPointTable.insertOrUpdate(userId, 10_000_000L);
+        userPointWriter.updatedPoint(userId, 10_000_000L);
 
         PointCommand command = ChargePointCommand.of(userId, amount);
 
@@ -51,7 +55,7 @@ class PointServiceTest {
         // given
         long userId = 1L;
         long amount = 500_000L;
-        userPointTable.insertOrUpdate(userId, 10_000L);
+        userPointWriter.updatedPoint(userId, 10_000L);
 
         PointCommand command = ChargePointCommand.of(userId, amount);
 
@@ -74,10 +78,10 @@ class PointServiceTest {
         pointService.processPoint(command);
 
         // when
-        List<PointHistory> pointHistories = pointHistoryTable.selectAllByUserId(userId);
+        List<PointHistory> pointHistories = pointHistoryReader.findAllByUserIdOrderByUpdateMillisDesc(userId);
 
         // then
-        PointHistory pointHistory = pointHistories.get(pointHistories.size() - 1);
+        PointHistory pointHistory = pointHistories.get(0);
         assertThat(pointHistory.userId()).isEqualTo(userId);
         assertThat(pointHistory.amount()).isEqualTo(amount);
         assertThat(pointHistory.type()).isEqualTo(TransactionType.CHARGE);
@@ -89,7 +93,7 @@ class PointServiceTest {
         // given
         long userId = 1L;
         long amount = 10_001;
-        userPointTable.insertOrUpdate(userId, 10_000L);
+        userPointWriter.updatedPoint(userId, 10_000L);
 
         PointCommand command = UsePointCommand.of(userId, amount);
 
@@ -105,7 +109,7 @@ class PointServiceTest {
         // given
         long userId = 1L;
         long amount = 1_500L;
-        userPointTable.insertOrUpdate(userId, 10_000L);
+        userPointWriter.updatedPoint(userId, 10_000L);
 
         PointCommand command = UsePointCommand.of(userId, amount);
 
@@ -123,16 +127,16 @@ class PointServiceTest {
         // given
         long userId = 1L;
         long amount = 1_500L;
-        userPointTable.insertOrUpdate(userId, 10_000L);
+        userPointWriter.updatedPoint(userId, 10_000L);
 
         PointCommand command = UsePointCommand.of(userId, amount);
         pointService.processPoint(command);
 
         // when
-        List<PointHistory> pointHistories = pointHistoryTable.selectAllByUserId(userId);
+        List<PointHistory> pointHistories = pointHistoryReader.findAllByUserIdOrderByUpdateMillisDesc(userId);
 
         // then
-        PointHistory pointHistory = pointHistories.get(pointHistories.size() - 1);
+        PointHistory pointHistory = pointHistories.get(0);
         assertThat(pointHistory.userId()).isEqualTo(userId);
         assertThat(pointHistory.amount()).isEqualTo(-amount);
         assertThat(pointHistory.type()).isEqualTo(TransactionType.USE);
@@ -143,7 +147,7 @@ class PointServiceTest {
     void readPoint() {
         // given
         long userId = 1L;
-        userPointTable.insertOrUpdate(userId, 10_000L);
+        userPointWriter.updatedPoint(userId, 10_000L);
 
         // when
         UserPoint point = pointService.readPoint(userId);
@@ -158,8 +162,11 @@ class PointServiceTest {
     void readPointHistories() {
         // given
         long userId = 1L;
-        pointHistoryTable.insert(userId, 100_000L, TransactionType.CHARGE, System.currentTimeMillis());
-        pointHistoryTable.insert(userId, -50_000L, TransactionType.USE, System.currentTimeMillis());
+        ChargePointCommand chargePointCommand = ChargePointCommand.of(userId, 100_000L);
+        UsePointCommand usePointCommand = UsePointCommand.of(userId, 50_000L);
+
+        pointHistoryWriter.save(chargePointCommand);
+        pointHistoryWriter.save(usePointCommand);
 
         // when
         List<PointHistory> histories = pointService.readPointHistories(userId);
