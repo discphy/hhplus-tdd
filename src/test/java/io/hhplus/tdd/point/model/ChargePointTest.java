@@ -3,6 +3,7 @@ package io.hhplus.tdd.point.model;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static io.hhplus.tdd.point.model.TransactionType.CHARGE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ChargePointTest {
@@ -19,7 +20,7 @@ class ChargePointTest {
 
         // then
         assertThat(chargePoint.getAmount()).isEqualTo(value);
-        assertThat(chargePoint.getTransactionType()).isEqualTo(TransactionType.CHARGE);
+        assertThat(chargePoint.getTransactionType()).isEqualTo(CHARGE);
     }
 
 }

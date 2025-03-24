@@ -2,15 +2,14 @@ package io.hhplus.tdd.point.entity.persistence;
 
 import io.hhplus.tdd.point.entity.PointHistory;
 import io.hhplus.tdd.point.service.command.ChargePointCommand;
+import io.hhplus.tdd.support.IntegrationTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-class PointHistoryWriterTest {
+class PointHistoryWriterTest extends IntegrationTestSupport {
 
     @Autowired
     private PointHistoryWriter pointHistoryWriter;
@@ -19,7 +18,7 @@ class PointHistoryWriterTest {
     @Test
     void save() {
         // given
-        ChargePointCommand command = ChargePointCommand.of(1L, 100_000L);
+        ChargePointCommand command = ChargePointCommand.of(ANY_USER_ID, 100_000L);
 
         // when
         PointHistory savePointHistory = pointHistoryWriter.save(command);

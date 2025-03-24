@@ -2,15 +2,14 @@ package io.hhplus.tdd.point.entity.persistence;
 
 import io.hhplus.tdd.database.UserPointTable;
 import io.hhplus.tdd.point.entity.UserPoint;
+import io.hhplus.tdd.support.IntegrationTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-class UserPointReaderTest {
+class UserPointReaderTest extends IntegrationTestSupport {
 
     @Autowired
     private UserPointReader userPointReader;

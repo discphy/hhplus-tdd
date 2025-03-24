@@ -1,15 +1,14 @@
 package io.hhplus.tdd.point.entity.persistence;
 
 import io.hhplus.tdd.point.entity.UserPoint;
+import io.hhplus.tdd.support.IntegrationTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-class UserPointWriterTest {
+class UserPointWriterTest extends IntegrationTestSupport {
 
     @Autowired
     private UserPointWriter userPointWriter;
@@ -18,14 +17,13 @@ class UserPointWriterTest {
     @Test
     void updatedChargePoint() {
         // given
-        long userId = 1L;
         long amount = 10_000L;
 
         // when
-        UserPoint userPoint = userPointWriter.updatedPoint(userId, amount);
+        UserPoint userPoint = userPointWriter.updatedPoint(ANY_USER_ID, amount);
 
         // then
-        assertThat(userPoint.id()).isEqualTo(userId);
+        assertThat(userPoint.id()).isEqualTo(ANY_USER_ID);
         assertThat(userPoint.point()).isEqualTo(amount);
     }
 }

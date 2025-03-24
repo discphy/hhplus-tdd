@@ -3,6 +3,7 @@ package io.hhplus.tdd.point.model;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static io.hhplus.tdd.point.model.TransactionType.USE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class UsePointTest {
@@ -19,6 +20,6 @@ class UsePointTest {
 
         // then
         assertThat(usePoint.getAmount()).isEqualTo(-value);
-        assertThat(usePoint.getTransactionType()).isEqualTo(TransactionType.USE);
+        assertThat(usePoint.getTransactionType()).isEqualTo(USE);
     }
 }

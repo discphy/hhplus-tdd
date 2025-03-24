@@ -5,21 +5,22 @@ import io.hhplus.tdd.point.entity.UserPoint;
 import io.hhplus.tdd.point.entity.persistence.PointHistoryReader;
 import io.hhplus.tdd.point.entity.persistence.PointHistoryWriter;
 import io.hhplus.tdd.point.entity.persistence.UserPointWriter;
-import io.hhplus.tdd.point.model.TransactionType;
 import io.hhplus.tdd.point.service.command.ChargePointCommand;
 import io.hhplus.tdd.point.service.command.PointCommand;
 import io.hhplus.tdd.point.service.command.UsePointCommand;
+import io.hhplus.tdd.support.IntegrationTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static io.hhplus.tdd.point.model.TransactionType.CHARGE;
+import static io.hhplus.tdd.point.model.TransactionType.USE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
-class PointServiceTest {
+class PointServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private PointService pointService;
@@ -37,11 +38,10 @@ class PointServiceTest {
     @Test
     void chargePointWithGreaterThenMaxPoint() {
         // given
-        long userId = 1L;
         long amount = 1L;
-        userPointWriter.updatedPoint(userId, 10_000_000L);
+        userPointWriter.updatedPoint(ANY_USER_ID, 10_000_000L);
 
-        PointCommand command = ChargePointCommand.of(userId, amount);
+        PointCommand command = ChargePointCommand.of(ANY_USER_ID, amount);
 
         // when & then
         assertThatThrownBy(() -> pointService.updatePoint(command))
@@ -53,17 +53,16 @@ class PointServiceTest {
     @Test
     void chargePoint() {
         // given
-        long userId = 1L;
         long amount = 500_000L;
-        userPointWriter.updatedPoint(userId, 10_000L);
+        userPointWriter.updatedPoint(ANY_USER_ID, 10_000L);
 
-        PointCommand command = ChargePointCommand.of(userId, amount);
+        PointCommand command = ChargePointCommand.of(ANY_USER_ID, amount);
 
         // when
         UserPoint userPoint = pointService.updatePoint(command);
 
         // then
-        assertThat(userPoint.id()).isEqualTo(userId);
+        assertThat(userPoint.id()).isEqualTo(ANY_USER_ID);
         assertThat(userPoint.point()).isEqualTo(10_000L + amount);
     }
 
@@ -71,31 +70,29 @@ class PointServiceTest {
     @Test
     void chargePointWithSavePointHistory() {
         // given
-        long userId = 1L;
         long amount = 500_000L;
 
-        PointCommand command = ChargePointCommand.of(userId, amount);
+        PointCommand command = ChargePointCommand.of(ANY_USER_ID, amount);
         pointService.updatePoint(command);
 
         // when
-        List<PointHistory> pointHistories = pointHistoryReader.findAllByUserIdOrderByUpdateMillisDesc(userId);
+        List<PointHistory> pointHistories = pointHistoryReader.findAllByUserIdOrderByUpdateMillisDesc(ANY_USER_ID);
 
         // then
         PointHistory pointHistory = pointHistories.get(0);
-        assertThat(pointHistory.userId()).isEqualTo(userId);
+        assertThat(pointHistory.userId()).isEqualTo(ANY_USER_ID);
         assertThat(pointHistory.amount()).isEqualTo(amount);
-        assertThat(pointHistory.type()).isEqualTo(TransactionType.CHARGE);
+        assertThat(pointHistory.type()).isEqualTo(CHARGE);
     }
 
     @DisplayName("포인트 사용 시 잔고는 충분해야한다.")
     @Test
     void usePointWithLessThenMinPoint() {
         // given
-        long userId = 1L;
-        long amount = 10_001;
-        userPointWriter.updatedPoint(userId, 10_000L);
+        long amount = 10_001L;
+        userPointWriter.updatedPoint(ANY_USER_ID, 10_000L);
 
-        PointCommand command = UsePointCommand.of(userId, amount);
+        PointCommand command = UsePointCommand.of(ANY_USER_ID, amount);
 
         // when & then
         assertThatThrownBy(() -> pointService.updatePoint(command))
@@ -107,17 +104,16 @@ class PointServiceTest {
     @Test
     void usePoint() {
         // given
-        long userId = 1L;
         long amount = 1_500L;
-        userPointWriter.updatedPoint(userId, 10_000L);
+        userPointWriter.updatedPoint(ANY_USER_ID, 10_000L);
 
-        PointCommand command = UsePointCommand.of(userId, amount);
+        PointCommand command = UsePointCommand.of(ANY_USER_ID, amount);
 
         // when
         UserPoint userPoint = pointService.updatePoint(command);
 
         // then
-        assertThat(userPoint.id()).isEqualTo(userId);
+        assertThat(userPoint.id()).isEqualTo(ANY_USER_ID);
         assertThat(userPoint.point()).isEqualTo(10_000L - amount);
     }
 
@@ -125,21 +121,20 @@ class PointServiceTest {
     @Test
     void usePointWithSavePointHistory() {
         // given
-        long userId = 1L;
         long amount = 1_500L;
-        userPointWriter.updatedPoint(userId, 10_000L);
+        userPointWriter.updatedPoint(ANY_USER_ID, 10_000L);
 
-        PointCommand command = UsePointCommand.of(userId, amount);
+        PointCommand command = UsePointCommand.of(ANY_USER_ID, amount);
         pointService.updatePoint(command);
 
         // when
-        List<PointHistory> pointHistories = pointHistoryReader.findAllByUserIdOrderByUpdateMillisDesc(userId);
+        List<PointHistory> pointHistories = pointHistoryReader.findAllByUserIdOrderByUpdateMillisDesc(ANY_USER_ID);
 
         // then
         PointHistory pointHistory = pointHistories.get(0);
-        assertThat(pointHistory.userId()).isEqualTo(userId);
+        assertThat(pointHistory.userId()).isEqualTo(ANY_USER_ID);
         assertThat(pointHistory.amount()).isEqualTo(-amount);
-        assertThat(pointHistory.type()).isEqualTo(TransactionType.USE);
+        assertThat(pointHistory.type()).isEqualTo(USE);
     }
 
     @DisplayName("사용자 ID로 포인트를 조회한다.")
@@ -175,12 +170,12 @@ class PointServiceTest {
         PointHistory usePointHistory = histories.get(0);
         assertThat(usePointHistory.userId()).isEqualTo(userId);
         assertThat(usePointHistory.amount()).isEqualTo(-50_000L);
-        assertThat(usePointHistory.type()).isEqualTo(TransactionType.USE);
+        assertThat(usePointHistory.type()).isEqualTo(USE);
 
         PointHistory chargePointHistory = histories.get(1);
         assertThat(chargePointHistory.userId()).isEqualTo(userId);
         assertThat(chargePointHistory.amount()).isEqualTo(100_000L);
-        assertThat(chargePointHistory.type()).isEqualTo(TransactionType.CHARGE);
+        assertThat(chargePointHistory.type()).isEqualTo(CHARGE);
     }
 
 }

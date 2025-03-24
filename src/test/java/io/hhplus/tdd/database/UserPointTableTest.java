@@ -1,16 +1,15 @@
 package io.hhplus.tdd.database;
 
 import io.hhplus.tdd.point.entity.UserPoint;
+import io.hhplus.tdd.support.IntegrationTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
-class UserPointTableTest {
+class UserPointTableTest extends IntegrationTestSupport {
 
     @Autowired
     private UserPointTable userPointTable;
@@ -19,11 +18,10 @@ class UserPointTableTest {
     @Test
     void insertOrUpdateWithInsufficientPoint() {
         // given
-        long userId = 1L;
         long amount = -1;
 
         // when & then
-        assertThatThrownBy(() -> userPointTable.insertOrUpdate(userId, amount))
+        assertThatThrownBy(() -> userPointTable.insertOrUpdate(ANY_USER_ID, amount))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("잔고가 부족합니다.");
     }
@@ -32,11 +30,10 @@ class UserPointTableTest {
     @Test
     void insertOrUpdateWithExceedMaxPoint() {
         // given
-        long userId = 1L;
         long amount = 10_000_001L;
 
         // when & then
-        assertThatThrownBy(() -> userPointTable.insertOrUpdate(userId, amount))
+        assertThatThrownBy(() -> userPointTable.insertOrUpdate(ANY_USER_ID, amount))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("최대 잔고는 10,000,000 포인트 입니다.");
     }
@@ -45,14 +42,13 @@ class UserPointTableTest {
     @Test
     void insertOrUpdateForChargePoint() {
         // given
-        long userId = 1L;
         long amount = 100_000L;
 
         // when
-        UserPoint userPoint = userPointTable.insertOrUpdate(userId, amount);
+        UserPoint userPoint = userPointTable.insertOrUpdate(ANY_USER_ID, amount);
 
         // then
-        assertThat(userPoint.id()).isEqualTo(userId);
+        assertThat(userPoint.id()).isEqualTo(ANY_USER_ID);
         assertThat(userPoint.point()).isEqualTo(amount);
     }
 
