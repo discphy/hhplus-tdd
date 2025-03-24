@@ -29,11 +29,11 @@ public class PointController {
 
     @PatchMapping("{id}/charge")
     public UserPoint charge(@PathVariable("id") long id, @RequestBody long amount) {
-        return pointService.processPoint(ChargePointCommand.of(id, amount));
+        return pointService.updatePoint(ChargePointCommand.of(id, amount));
     }
 
     @PatchMapping("{id}/use")
     public UserPoint use(@PathVariable("id") long id, @RequestBody long amount) {
-        return pointService.processPoint(UsePointCommand.of(id, amount));
+        return pointService.updatePoint(UsePointCommand.of(id, amount));
     }
 }

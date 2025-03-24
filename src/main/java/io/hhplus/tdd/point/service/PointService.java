@@ -21,7 +21,7 @@ public class PointService {
     private final UserPointReader userPointReader;
     private final UserPointWriter userPointWriter;
 
-    public UserPoint processPoint(PointCommand command) {
+    public UserPoint updatePoint(PointCommand command) {
         UserPoint userPoint = readPoint(command.getUserId());
         long updateAmount = userPoint.addAmount(command.getAmount());
 

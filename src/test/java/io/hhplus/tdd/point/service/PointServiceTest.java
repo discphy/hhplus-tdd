@@ -44,7 +44,7 @@ class PointServiceTest {
         PointCommand command = ChargePointCommand.of(userId, amount);
 
         // when & then
-        assertThatThrownBy(() -> pointService.processPoint(command))
+        assertThatThrownBy(() -> pointService.updatePoint(command))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("최대 잔고는 10,000,000 포인트 입니다.");
     }
@@ -60,7 +60,7 @@ class PointServiceTest {
         PointCommand command = ChargePointCommand.of(userId, amount);
 
         // when
-        UserPoint userPoint = pointService.processPoint(command);
+        UserPoint userPoint = pointService.updatePoint(command);
 
         // then
         assertThat(userPoint.id()).isEqualTo(userId);
@@ -75,7 +75,7 @@ class PointServiceTest {
         long amount = 500_000L;
 
         PointCommand command = ChargePointCommand.of(userId, amount);
-        pointService.processPoint(command);
+        pointService.updatePoint(command);
 
         // when
         List<PointHistory> pointHistories = pointHistoryReader.findAllByUserIdOrderByUpdateMillisDesc(userId);
@@ -98,7 +98,7 @@ class PointServiceTest {
         PointCommand command = UsePointCommand.of(userId, amount);
 
         // when & then
-        assertThatThrownBy(() -> pointService.processPoint(command))
+        assertThatThrownBy(() -> pointService.updatePoint(command))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("잔고가 부족합니다.");
     }
@@ -114,7 +114,7 @@ class PointServiceTest {
         PointCommand command = UsePointCommand.of(userId, amount);
 
         // when
-        UserPoint userPoint = pointService.processPoint(command);
+        UserPoint userPoint = pointService.updatePoint(command);
 
         // then
         assertThat(userPoint.id()).isEqualTo(userId);
@@ -130,7 +130,7 @@ class PointServiceTest {
         userPointWriter.updatedPoint(userId, 10_000L);
 
         PointCommand command = UsePointCommand.of(userId, amount);
-        pointService.processPoint(command);
+        pointService.updatePoint(command);
 
         // when
         List<PointHistory> pointHistories = pointHistoryReader.findAllByUserIdOrderByUpdateMillisDesc(userId);
