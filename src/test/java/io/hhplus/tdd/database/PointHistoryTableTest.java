@@ -1,10 +1,10 @@
 package io.hhplus.tdd.database;
 
 import io.hhplus.tdd.point.entity.PointHistory;
-import io.hhplus.tdd.support.IntegrationTestSupport;
+import io.hhplus.tdd.support.FixtureTestSupport;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -13,10 +13,14 @@ import static io.hhplus.tdd.point.model.TransactionType.USE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-class PointHistoryTableTest extends IntegrationTestSupport {
+class PointHistoryTableTest extends FixtureTestSupport {
 
-    @Autowired
     private PointHistoryTable pointHistoryTable;
+
+    @BeforeEach
+    void setUp() {
+        pointHistoryTable = new PointHistoryTable();
+    }
 
     @DisplayName("충전 포인트 내역을 등록한다.")
     @Test
