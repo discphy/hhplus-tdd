@@ -12,7 +12,7 @@ class ChargePointTest {
     @Test
     void createChargePoint() {
         // given
-        long value = 100_000;
+        long value = 100_000L;
         Amount amount = Amount.of(value);
 
         // when

@@ -33,7 +33,7 @@ class PointCommandTest extends FixtureTestSupport {
         PointCommand command = ChargePointCommand.of(ANY_USER_ID, amount);
 
         // then
-        assertThat(command.getAmount()).isGreaterThan(0);
+        assertThat(command.getAmount()).isGreaterThan(0L);
         assertThat(command.getType()).isEqualTo(CHARGE);
     }
 
@@ -59,7 +59,7 @@ class PointCommandTest extends FixtureTestSupport {
         PointCommand command = UsePointCommand.of(ANY_USER_ID, amount);
 
         // then
-        assertThat(command.getAmount()).isLessThan(0);
+        assertThat(command.getAmount()).isLessThan(0L);
         assertThat(command.getType()).isEqualTo(USE);
     }
 

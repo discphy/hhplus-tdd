@@ -11,7 +11,7 @@ class AmountTest {
 
     @DisplayName("금액은 0보다 커야한다.")
     @ParameterizedTest
-    @ValueSource(longs = {0, -1})
+    @ValueSource(longs = {0L, -1L})
     void ofIfNotGreaterThenZero(long value) {
         // when
         assertThatThrownBy(() -> Amount.of(value))
@@ -21,7 +21,7 @@ class AmountTest {
 
     @DisplayName("금액을 생성한다.")
     @ParameterizedTest
-    @ValueSource(longs = {1, 10_000, 1_000_000})
+    @ValueSource(longs = {1L, 10_000L, 1_000_000L})
     void of(long value) {
         // given
         Amount amount = Amount.of(value);
