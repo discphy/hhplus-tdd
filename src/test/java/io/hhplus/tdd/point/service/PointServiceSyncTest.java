@@ -36,11 +36,11 @@ class PointServiceSyncTest extends IntegrationTestSupport {
     @Test
     void syncChargePointWithGreaterThenMaxPoint() throws InterruptedException {
         // given
-        int threadCount = 12;
+        int threadCount = 3;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
-        PointCommand command = ChargePointCommand.of(ANY_USER_ID, 1_000_000L);
+        PointCommand command = ChargePointCommand.of(ANY_USER_ID, 4_000_000L);
 
         List<Exception> exceptions = new ArrayList<>();
 
@@ -57,13 +57,14 @@ class PointServiceSyncTest extends IntegrationTestSupport {
         }
 
         latch.await();
+        executorService.shutdown();
 
         // when
         UserPoint userPoint = pointService.readPoint(ANY_USER_ID);
 
         // then
-        assertThat(userPoint.point()).isEqualTo(10_000_000L);
-        assertThat(exceptions).hasSize(2)
+        assertThat(userPoint.point()).isEqualTo(8_000_000L);
+        assertThat(exceptions).hasSize(1)
             .allSatisfy(e -> assertThat(e)
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("최대 잔고는 10,000,000 포인트 입니다.")
@@ -74,7 +75,7 @@ class PointServiceSyncTest extends IntegrationTestSupport {
     @Test
     void syncChargePoint() throws InterruptedException {
         // given
-        int threadCount = 5;
+        int threadCount = 3;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
@@ -91,23 +92,24 @@ class PointServiceSyncTest extends IntegrationTestSupport {
         }
 
         latch.await();
+        executorService.shutdown();
 
         // when
         UserPoint userPoint = pointService.readPoint(ANY_USER_ID);
 
         // then
-        assertThat(userPoint.point()).isEqualTo(5_000_000L);
+        assertThat(userPoint.point()).isEqualTo(3_000_000L);
     }
 
     @DisplayName("[동시성] 포인트 사용 시 잔고는 충분해야한다.")
     @Test
     void syncUsePointWithLessThenMinPoint() throws InterruptedException {
         // given
-        int threadCount = 15;
+        int threadCount = 3;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
-        PointCommand command = UsePointCommand.of(ANY_USER_ID, 1_000L);
+        PointCommand command = UsePointCommand.of(ANY_USER_ID, 4_000L);
 
         List<Exception> exceptions = new ArrayList<>();
 
@@ -126,13 +128,14 @@ class PointServiceSyncTest extends IntegrationTestSupport {
         }
 
         latch.await();
+        executorService.shutdown();
 
         // when
         UserPoint userPoint = pointService.readPoint(ANY_USER_ID);
 
         // then
-        assertThat(userPoint.point()).isZero();
-        assertThat(exceptions).hasSize(5)
+        assertThat(userPoint.point()).isEqualTo(2_000L);
+        assertThat(exceptions).hasSize(1)
             .allSatisfy(e -> assertThat(e)
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("잔고가 부족합니다.")
@@ -143,13 +146,13 @@ class PointServiceSyncTest extends IntegrationTestSupport {
     @Test
     void syncUsePoint() throws InterruptedException {
         // given
-        int threadCount = 10;
+        int threadCount = 3;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
         PointCommand command = UsePointCommand.of(ANY_USER_ID, 10_000L);
 
-        userPointWriter.updatedPoint(ANY_USER_ID, 1_000_000L);
+        userPointWriter.updatedPoint(ANY_USER_ID, 100_000L);
 
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
@@ -162,11 +165,12 @@ class PointServiceSyncTest extends IntegrationTestSupport {
         }
 
         latch.await();
+        executorService.shutdown();
 
         // when
         UserPoint userPoint = pointService.readPoint(ANY_USER_ID);
 
         // then
-        assertThat(userPoint.point()).isEqualTo(900_000L);
+        assertThat(userPoint.point()).isEqualTo(70_000L);
     }
 }

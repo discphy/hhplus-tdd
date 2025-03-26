@@ -45,6 +45,7 @@ class FakePointWithoutLockServiceTest {
         }
 
         latch.await();
+        executorService.shutdown();
 
         // when
         UserPoint userPoint = pointService.readPoint(1L);
