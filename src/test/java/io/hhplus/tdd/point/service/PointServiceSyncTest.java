@@ -6,6 +6,7 @@ import io.hhplus.tdd.point.service.command.ChargePointCommand;
 import io.hhplus.tdd.point.service.command.PointCommand;
 import io.hhplus.tdd.point.service.command.UsePointCommand;
 import io.hhplus.tdd.support.IntegrationTestSupport;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,11 @@ class PointServiceSyncTest extends IntegrationTestSupport {
 
     @Autowired
     private UserPointWriter userPointWriter;
+
+    @BeforeEach
+    void setUp() {
+        userPointWriter.updatedPoint(ANY_USER_ID, 0L);
+    }
 
     @DisplayName("[동시성] 포인트 충전 최대 금액은 1,000만원 까지다.")
     @Test
