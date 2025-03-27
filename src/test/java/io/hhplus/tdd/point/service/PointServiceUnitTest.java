@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -56,10 +57,7 @@ class PointServiceUnitTest extends FixtureTestSupport {
         // given
         PointCommand command = ChargePointCommand.of(ANY_USER_ID, 1L);
 
-        given(lockProvider.lock(anyLong(), any())).willAnswer(invocation -> {
-            Supplier<UserPoint> supplier = invocation.getArgument(1);
-            return supplier.get();
-        });
+        given(lockProvider.lock(anyLong(), any())).willAnswer(this::stubLockProvider);
 
         given(userPointReader.findByUserId(anyLong()))
             .willReturn(new UserPoint(ANY_USER_ID, 10_000_000L, 1L));
@@ -80,10 +78,7 @@ class PointServiceUnitTest extends FixtureTestSupport {
         long amount = 500_000L;
         PointCommand command = ChargePointCommand.of(ANY_USER_ID, amount);
 
-        given(lockProvider.lock(anyLong(), any())).willAnswer(invocation -> {
-            Supplier<UserPoint> supplier = invocation.getArgument(1);
-            return supplier.get();
-        });
+        given(lockProvider.lock(anyLong(), any())).willAnswer(this::stubLockProvider);
 
         given(userPointReader.findByUserId(any()))
             .willReturn(new UserPoint(ANY_USER_ID, 10_000L, 1L));
@@ -105,10 +100,7 @@ class PointServiceUnitTest extends FixtureTestSupport {
         // given
         PointCommand command = UsePointCommand.of(ANY_USER_ID, 10_001L);
 
-        given(lockProvider.lock(anyLong(), any())).willAnswer(invocation -> {
-            Supplier<UserPoint> supplier = invocation.getArgument(1);
-            return supplier.get();
-        });
+        given(lockProvider.lock(anyLong(), any())).willAnswer(this::stubLockProvider);
 
         given(userPointReader.findByUserId(any()))
             .willReturn(new UserPoint(ANY_USER_ID, 10_000L, 1L));
@@ -129,10 +121,7 @@ class PointServiceUnitTest extends FixtureTestSupport {
         long amount = 1_500L;
         PointCommand command = UsePointCommand.of(ANY_USER_ID, amount);
 
-        given(lockProvider.lock(anyLong(), any())).willAnswer(invocation -> {
-            Supplier<UserPoint> supplier = invocation.getArgument(1);
-            return supplier.get();
-        });
+        given(lockProvider.lock(anyLong(), any())).willAnswer(this::stubLockProvider);
 
         given(userPointReader.findByUserId(any()))
             .willReturn(new UserPoint(ANY_USER_ID, 10_000L, 1L));
@@ -154,10 +143,7 @@ class PointServiceUnitTest extends FixtureTestSupport {
         // given
         long userId = 1L;
 
-        given(lockProvider.lock(anyLong(), any())).willAnswer(invocation -> {
-            Supplier<UserPoint> supplier = invocation.getArgument(1);
-            return supplier.get();
-        });
+        given(lockProvider.lock(anyLong(), any())).willAnswer(this::stubLockProvider);
 
         given(userPointReader.findByUserId(userId))
             .willReturn(new UserPoint(1L, 10_000L, 1L));
@@ -198,4 +184,8 @@ class PointServiceUnitTest extends FixtureTestSupport {
         assertThat(chargePointHistory.type()).isEqualTo(CHARGE);
     }
 
+    private UserPoint stubLockProvider(InvocationOnMock invocation) {
+        Supplier<UserPoint> supplier = invocation.getArgument(1);
+        return supplier.get();
+    }
 }

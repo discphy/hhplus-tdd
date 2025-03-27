@@ -2,6 +2,7 @@ package io.hhplus.tdd.point.entity.persistence;
 
 import io.hhplus.tdd.point.entity.PointHistory;
 import io.hhplus.tdd.point.service.command.ChargePointCommand;
+import io.hhplus.tdd.point.service.command.PointCommand;
 import io.hhplus.tdd.support.IntegrationTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,7 @@ class PointHistoryWriterTest extends IntegrationTestSupport {
     @Test
     void save() {
         // given
-        ChargePointCommand command = ChargePointCommand.of(ANY_USER_ID, 100_000L);
+        PointCommand command = ChargePointCommand.of(ANY_USER_ID, 100_000L);
 
         // when
         PointHistory savePointHistory = pointHistoryWriter.save(command);

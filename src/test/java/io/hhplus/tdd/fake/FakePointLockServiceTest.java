@@ -5,6 +5,7 @@ import io.hhplus.tdd.point.entity.UserPoint;
 import io.hhplus.tdd.point.lock.UserPointLockProvider;
 import io.hhplus.tdd.point.service.command.ChargePointCommand;
 import io.hhplus.tdd.point.service.command.PointCommand;
+import io.hhplus.tdd.support.FixtureTestSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,7 @@ import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class FakePointLockServiceTest {
+class FakePointLockServiceTest extends FixtureTestSupport {
 
     private FakePointService pointService;
 
@@ -32,7 +33,7 @@ class FakePointLockServiceTest {
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
-        PointCommand command = ChargePointCommand.of(1L, 50_000L);
+        PointCommand command = ChargePointCommand.of(ANY_USER_ID, 50_000L);
 
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
@@ -48,7 +49,7 @@ class FakePointLockServiceTest {
         executorService.shutdown();
 
         // when
-        UserPoint userPoint = pointService.readPoint(1L);
+        UserPoint userPoint = pointService.readPoint(ANY_USER_ID);
 
         // then
         assertThat(userPoint.point()).isEqualTo(100_000L);

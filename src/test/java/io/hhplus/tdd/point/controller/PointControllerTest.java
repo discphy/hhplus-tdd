@@ -129,7 +129,7 @@ class PointControllerTest extends ControllerTestSupport {
     @Test
     void use() throws Exception {
         // given
-        UserPoint response = new UserPoint(1L, 1_000L, System.currentTimeMillis());
+        UserPoint response = new UserPoint(1L, 10_000L, System.currentTimeMillis());
 
         given(pointService.updatePoint(any()))
             .willReturn(response);
@@ -143,7 +143,7 @@ class PointControllerTest extends ControllerTestSupport {
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(1L))
-            .andExpect(jsonPath("$.point").value(1_000L))
+            .andExpect(jsonPath("$.point").value(10_000L))
             .andExpect(jsonPath("$.updateMillis").exists());
     }
 
