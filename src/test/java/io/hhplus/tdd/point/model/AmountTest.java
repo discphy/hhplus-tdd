@@ -13,7 +13,7 @@ class AmountTest {
     @ParameterizedTest
     @ValueSource(longs = {0L, -1L})
     void ofIfNotGreaterThenZero(long value) {
-        // when
+        // when & then
         assertThatThrownBy(() -> Amount.of(value))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("금액은 0보다 커야합니다.");
